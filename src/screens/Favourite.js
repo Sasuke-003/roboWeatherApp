@@ -3,7 +3,7 @@ import React from 'react';
 
 const Favourite = () => {
   return (
-    <View>
+    <View style={styles.container}>
       <Text>Favourite</Text>
     </View>
   );
@@ -11,4 +11,4 @@ const Favourite = () => {
 
 export default Favourite;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({container: {backgroundColor: '#00000000'}});

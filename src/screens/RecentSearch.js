@@ -3,7 +3,7 @@ import React from 'react';
 
 const RecentSearch = () => {
   return (
-    <View>
+    <View style={styles.container}>
       <Text>Recent Search</Text>
     </View>
   );
@@ -11,4 +11,4 @@ const RecentSearch = () => {
 
 export default RecentSearch;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({container: {backgroundColor: '#00000000'}});
