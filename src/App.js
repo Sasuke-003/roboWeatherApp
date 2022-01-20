@@ -10,8 +10,8 @@ import {
 } from 'react-native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {NavigationContainer} from '@react-navigation/native';
-import {Home, Search, Favourite, RecentSearch} from './src/screens';
-import {CustomDrawer} from './src/components';
+import {Home, Search, Favourite, RecentSearch} from './screens';
+import {CustomDrawer} from './components';
 
 const Drawer = createDrawerNavigator();
 
