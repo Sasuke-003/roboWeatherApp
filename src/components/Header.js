@@ -32,7 +32,8 @@ export default Header;
 const styles = StyleSheet.create({
   container: {
     marginTop: (Platform.OS === 'ios' ? 30 : 0) + 5,
-    height: 56,
+    // height: 56,
+    flex: 1,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',

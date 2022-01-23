@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {NAVIGATION_ROUTES} from '../constants';
+import backgroundImage from '../assets/images/background.png';
 
 const SplashScreen = ({navigation}) => {
   useEffect(() => {
@@ -15,11 +16,13 @@ const SplashScreen = ({navigation}) => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={{fontSize: 18, fontWeight: 'bold', color: '#1d3557'}}>
-        Splash
-      </Text>
-    </View>
+    <ImageBackground style={{height: '100%'}} source={backgroundImage}>
+      <View style={styles.container}>
+        <Text style={{fontSize: 18, fontWeight: 'bold', color: '#1d3557'}}>
+          Splash
+        </Text>
+      </View>
+    </ImageBackground>
   );
 };
 

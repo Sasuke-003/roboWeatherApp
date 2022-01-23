@@ -1,11 +1,14 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {ImageBackground, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
+import backgroundImage from '../assets/images/background.png';
 
 const RecentSearch = () => {
   return (
-    <View style={styles.container}>
-      <Text>Recent Search</Text>
-    </View>
+    <ImageBackground style={{height: '100%'}} source={backgroundImage}>
+      <View style={styles.container}>
+        <Text>Recent Search</Text>
+      </View>
+    </ImageBackground>
   );
 };
 
