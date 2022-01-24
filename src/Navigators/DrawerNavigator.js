@@ -10,12 +10,7 @@ const screenOptions = {
   headerShown: false,
 };
 
-const DrawerNavigator = ({
-  navigation,
-  route: {
-    params: {WEATHER_DATA},
-  },
-}) => {
+const DrawerNavigator = ({navigation}) => {
   const goToSearch = () => {
     navigation.navigate(NAVIGATION_ROUTES.SEARCH);
   };
@@ -26,9 +21,7 @@ const DrawerNavigator = ({
       initialRouteName={NAVIGATION_ROUTES.HOME}>
       <Drawer.Screen
         name={NAVIGATION_ROUTES.HOME}
-        children={() => (
-          <Home goToSearch={goToSearch} WEATHER_DATA={WEATHER_DATA} />
-        )}
+        children={() => <Home goToSearch={goToSearch} />}
       />
       <Drawer.Screen
         name={NAVIGATION_ROUTES.RECENT_SEARCH}

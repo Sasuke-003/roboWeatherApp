@@ -16,7 +16,7 @@ import {NAVIGATION_ROUTES} from '../constants';
 import {
   addRecentlySearched,
   getAllPlaces,
-  replaceExistingPlace,
+  replaceExistingPlaceWithRecentlySearched,
 } from '../redux/reducers/placeReducer';
 import {utils} from '../utils';
 import {api} from '../server';
@@ -101,7 +101,7 @@ const Search = ({navigation}) => {
       timezone,
       recentlySearched: true,
     };
-    dispatch(replaceExistingPlace(WEATHER_DATA));
+    dispatch(replaceExistingPlaceWithRecentlySearched(WEATHER_DATA));
     goToHomeWithData(WEATHER_DATA);
     // console.warn(WEATHER_DATA);
   };
@@ -150,6 +150,8 @@ const Search = ({navigation}) => {
         //place found
         if (!utils.isDataExpired(places[placeIndex])) {
           // data not expired
+
+          addRecentlySearched(places[placeIndex]);
           goToHomeWithData(places[placeIndex]);
           return;
         }

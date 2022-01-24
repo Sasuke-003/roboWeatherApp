@@ -8,7 +8,7 @@ const slice = createSlice({
   name: 'place',
   initialState,
   reducers: {
-    addFavPlace: (state, action) => {
+    addPlace: (state, action) => {
       const index = state.findIndex(
         place => place.placeName === action.payload.placeName,
       );
@@ -16,7 +16,6 @@ const slice = createSlice({
         state.unshift(action.payload);
         return;
       }
-      state[index].isFav = true;
     },
     replaceExistingPlace: (state, action) => {
       const index = state.findIndex(
@@ -29,6 +28,31 @@ const slice = createSlice({
       state[index] = {
         ...action.payload,
         isFav: state[index].isFav,
+        recentlySearched: state[index].recentlySearched,
+      };
+      console.log(state);
+    },
+    addFavPlace: (state, action) => {
+      const index = state.findIndex(
+        place => place.placeName === action.payload.placeName,
+      );
+      if (index === -1) {
+        state.unshift(action.payload);
+        return;
+      }
+      state[index].isFav = true;
+    },
+    replaceExistingPlaceWithIsFav: (state, action) => {
+      const index = state.findIndex(
+        place => place.placeName === action.payload.placeName,
+      );
+      if (index === -1) {
+        state.unshift({...action.payload, isFav: false});
+        return;
+      }
+      state[index] = {
+        ...action.payload,
+        recentlySearched: state[index].recentlySearched,
       };
       console.log(state);
     },
@@ -52,7 +76,19 @@ const slice = createSlice({
         return;
       }
       state[index].recentlySearched = true;
-      console.log(state);
+    },
+    replaceExistingPlaceWithRecentlySearched: (state, action) => {
+      const index = state.findIndex(
+        place => place.placeName === action.payload.placeName,
+      );
+      if (index === -1) {
+        state.unshift({...action.payload, isFav: false});
+        return;
+      }
+      state[index] = {
+        ...action.payload,
+        isFav: state[index].isFav,
+      };
     },
     deleteRecentlySearched: (state, action) => {
       const index = state.findIndex(
@@ -72,10 +108,13 @@ export default slice.reducer;
 // Actions
 
 export const {
-  addFavPlace,
-  deleteFavPlace,
+  addPlace,
   replaceExistingPlace,
+  addFavPlace,
+  replaceExistingPlaceWithIsFav,
+  deleteFavPlace,
   addRecentlySearched,
+  replaceExistingPlaceWithRecentlySearched,
   deleteRecentlySearched,
 } = slice.actions;
 

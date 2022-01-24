@@ -6,6 +6,7 @@ export const getCurrentLatLon = async () => {
       enableHighAccuracy: true,
       timeout: 15000,
     });
+    // console.warn(latitude, longitude);
     return {lat: latitude, lon: longitude};
   } catch (e) {
     console.warn(e);

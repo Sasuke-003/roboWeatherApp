@@ -15,24 +15,23 @@ import Logo from '../../assets/images/logo.png';
 import FavIcon from '../../assets/images/icon_favourite.png';
 import FavActiveIcon from '../../assets/images/icon_favourite_active.png';
 import backgroundImage from '../../assets/images/background.png';
-
+import axios from 'axios';
 import TempDetails from './TempDetails';
 import WeatherInfo from './WeatherInfo';
-
+import {api} from '../../server';
 import {Header} from '../../components';
 import {utils} from '../../utils';
 import {useDispatch, useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
 import {
+  addPlace,
   addFavPlace,
   checkIsFavPlace,
   getAllPlaces,
+  replaceExistingPlace,
 } from '../../redux/reducers/placeReducer';
 
-import {
-  setCurrentPlace,
-  getCurrentPlace,
-} from '../../redux/reducers/currentPlaceReducer';
+import {getCurrentPlace} from '../../redux/reducers/currentPlaceReducer';
 
 const headerLeftIcon = () => (
   <Image style={styles.headerLeftIcon} source={MenuIcon} />
@@ -66,7 +65,9 @@ const datePlaceFavComps = (
           style={styles.favIcon}
         />
       </TouchableOpacity>
-      <Text style={styles.addToFavText}>Add to favourite</Text>
+      <Text style={styles.addToFavText}>
+        {isFavourite ? 'Favourated' : 'Add to favourite'}
+      </Text>
     </View>
   </View>
 );
@@ -78,7 +79,7 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const currentPlace = useSelector(getCurrentPlace);
-  const allPlaces = useSelector(getAllPlaces);
+  const places = useSelector(getAllPlaces);
   const isFavourite = useSelector(state =>
     checkIsFavPlace(
       state,
@@ -106,18 +107,122 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
       const getData = async () => {
         setIsFetching(true);
         try {
-          const data = await utils.getCurrentLocData();
-          setWeatherData(data);
+          const {lat, lon} = await utils.getCurrentLatLon();
+          const currentLocPlaceName = await api.location.getPlaceNameFromLatLon(
+            lat,
+            lon,
+          );
+          console.log(currentLocPlaceName);
+          await searchForCityWeather(currentLocPlaceName);
           setIsFetching(false);
           return;
         } catch (e) {
-          console.warn(e.message);
+          console.warn(e);
         }
       };
 
-      getData();
+      if (currentPlace.length !== 1) getData();
     }, []),
   );
+
+  const fetchFromApi = async SEARCH_STRING => {
+    try {
+      const {data} = await api.weather.getDataUsingCityName(SEARCH_STRING);
+      return data;
+    } catch (e) {
+      console.warn(e);
+    }
+  };
+
+  const replaceWeatherData = weatherData => {
+    if (weatherData.cod !== 200) {
+      console.warn('no such place');
+      return;
+    }
+    const {
+      weather,
+      main: {temp, temp_min, temp_max, humidity},
+      visibility,
+      wind: {speed},
+      name,
+      sys: {country},
+      timezone,
+    } = weatherData;
+    const WEATHER_DATA = {
+      temp,
+      temp_min,
+      temp_max,
+      humidity,
+      visibility,
+      windSpeed: speed,
+      name: weather[0].main,
+      icon: weather[0].icon,
+      placeName: name,
+      country,
+      createdAt: new Date(),
+      timezone,
+    };
+    dispatch(replaceExistingPlace(WEATHER_DATA));
+    setWeatherData(WEATHER_DATA);
+    // console.warn(WEATHER_DATA);
+  };
+
+  const addToStorage = weatherData => {
+    if (weatherData.cod !== 200) {
+      console.warn('no such place');
+      return;
+    }
+    const {
+      weather,
+      main: {temp, temp_min, temp_max, humidity},
+      visibility,
+      wind: {speed},
+      name,
+      sys: {country},
+      timezone,
+    } = weatherData;
+    const WEATHER_DATA = {
+      temp,
+      temp_min,
+      temp_max,
+      humidity,
+      visibility,
+      windSpeed: speed,
+      name: weather[0].main,
+      icon: weather[0].icon,
+      placeName: name,
+      country,
+      createdAt: new Date(),
+      timezone,
+      recentlySearched: false,
+      isFav: false,
+    };
+    dispatch(addPlace(WEATHER_DATA));
+    setWeatherData(WEATHER_DATA);
+    // console.warn(WEATHER_DATA);
+  };
+
+  const searchForCityWeather = async SEARCH_STRING => {
+    try {
+      const placeIndex = places.findIndex(
+        place => place.placeName.toUpperCase() === SEARCH_STRING.toUpperCase(),
+      );
+      if (placeIndex !== -1) {
+        //place found
+        if (!utils.isDataExpired(places[placeIndex])) {
+          // data not expired
+          setWeatherData(places[placeIndex]);
+          return;
+        }
+        const weatherData = fetchFromApi(SEARCH_STRING); // if storage data expired then fetch and replace data
+        replaceWeatherData(weatherData);
+      }
+      const weatherData = await fetchFromApi(SEARCH_STRING); // place not found in storage, fetch and add to storage
+      addToStorage(weatherData);
+    } catch (e) {
+      console.warn(e);
+    }
+  };
 
   // useEffect(() => {
   //   const getData = async () => {
@@ -149,6 +254,7 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
           rightIcon={headerRightIcon}
           rightIconOnPress={headerRightIconOnPress}
         />
+
         <View style={styles.topContainer}>
           {isFetching ? (
             <LoadingComponent />
@@ -189,8 +295,17 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
             </>
           )}
         </View>
+
         <View style={styles.bottomContainer}>
-          {isFetching ? <LoadingComponent /> : <WeatherInfo {...weatherData} />}
+          {isFetching ? (
+            <LoadingComponent />
+          ) : (
+            <WeatherInfo
+              {...(currentPlace.length === 1
+                ? {...currentPlace[0]}
+                : {...weatherData})}
+            />
+          )}
         </View>
       </View>
     </ImageBackground>
