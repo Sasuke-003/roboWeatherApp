@@ -1,5 +1,6 @@
 import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
 import {utils} from '../../utils';
+import {useDeviceOrientation} from '@react-native-community/hooks';
 import React from 'react';
 
 const hitSlop = {top: 10, bottom: 10, left: 10, right: 10};
@@ -11,8 +12,13 @@ const TempDetails = ({
   setTempUnit,
   mainDesc,
 }) => {
+  const {landscape} = useDeviceOrientation();
   return (
-    <View style={styles.weatherDetailContainer}>
+    <View
+      style={[
+        styles.weatherDetailContainer,
+        landscape ? {alignSelf: 'flex-start'} : {},
+      ]}>
       <Image
         style={styles.weatherIcon}
         source={{uri: utils.getWeatherIconLink(iconName)}}

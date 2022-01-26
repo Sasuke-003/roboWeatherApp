@@ -1,7 +1,8 @@
 import React, {useEffect} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, ImageBackground, Image} from 'react-native';
 import {NAVIGATION_ROUTES} from '../constants';
 import backgroundImage from '../assets/images/background.png';
+import Logo from '../assets/images/logo.png';
 
 const SplashScreen = ({navigation}) => {
   useEffect(() => {
@@ -18,9 +19,7 @@ const SplashScreen = ({navigation}) => {
   return (
     <ImageBackground style={{height: '100%'}} source={backgroundImage}>
       <View style={styles.container}>
-        <Text style={{fontSize: 18, fontWeight: 'bold', color: '#1d3557'}}>
-          Splash
-        </Text>
+        <Image source={Logo} style={styles.logo} />
       </View>
     </ImageBackground>
   );
@@ -35,5 +34,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'transparent',
     height: '100%',
+  },
+  logo: {
+    width: 170,
+    height: 36,
   },
 });

@@ -3,17 +3,23 @@ import HumidityIcon from '../../assets/images/icon_humidity_info.png';
 import WindIcon from '../../assets/images/icon_wind_info.png';
 import VisibilityIcon from '../../assets/images/icon_visibility_info.png';
 import TempIcon from '../../assets/images/icon_temperature_info.png';
+import {useDeviceOrientation} from '@react-native-community/hooks';
 import React from 'react';
 import {utils} from '../../utils';
 
-const weatherInfoCard = ({
-  item: {name, value, icon, iconHeight, iconWidth},
-}) => (
+const weatherInfoCard = (
+  {name, value, icon, iconHeight, iconWidth},
+  landscape,
+) => (
   <View style={styles.infoCard}>
     <Image source={icon} style={{height: iconHeight, width: iconWidth}} />
     <View style={styles.infoContainer}>
-      <Text style={styles.infoName}>{name}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
+      <Text style={[styles.infoName, landscape ? {fontSize: 12} : {}]}>
+        {name}
+      </Text>
+      <Text style={[styles.infoValue, landscape ? {fontSize: 15} : {}]}>
+        {value}
+      </Text>
     </View>
   </View>
 );
@@ -25,38 +31,38 @@ const WeatherInfo = ({temp_min, temp_max, humidity, visibility, windSpeed}) => {
         temp_max,
       )}°`,
       icon: TempIcon,
-      iconHeight: 35,
-      iconWidth: 19,
+      iconHeight: 30,
+      iconWidth: 15,
     },
     {
       name: 'Humidity',
-      value: humidity,
+      value: humidity + '%',
       icon: HumidityIcon,
-      iconHeight: 35,
-      iconWidth: 26,
+      iconHeight: 30,
+      iconWidth: 23,
     },
     {
       name: 'Wind Speed',
-      value: windSpeed,
+      value: windSpeed + 'm/s',
       icon: WindIcon,
-      iconHeight: 30,
-      iconWidth: 40,
+      iconHeight: 25,
+      iconWidth: 35,
     },
     {
       name: 'Visibility',
       value: visibility,
       icon: VisibilityIcon,
-      iconHeight: 25,
-      iconWidth: 40,
+      iconHeight: 20,
+      iconWidth: 33,
     },
   ];
-
+  const {landscape} = useDeviceOrientation();
   return (
     <FlatList
       horizontal
       showsHorizontalScrollIndicator={false}
       data={weatherInfo}
-      renderItem={weatherInfoCard}
+      renderItem={({item}) => weatherInfoCard(item, landscape)}
       ListFooterComponent={() => <View style={{marginLeft: 30}}></View>}
     />
   );

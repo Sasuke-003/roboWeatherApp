@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import React, {useState, useEffect, useContext} from 'react';
+import {useDeviceOrientation} from '@react-native-community/hooks';
 import {DateDisplay, LoadingComponent} from '../../components';
 import MenuIcon from '../../assets/images/menu_icon.png';
 import SearchIcon from '../../assets/images/search_icon.png';
@@ -30,7 +31,6 @@ import {
   getAllPlaces,
   replaceExistingPlace,
 } from '../../redux/reducers/placeReducer';
-
 import {getCurrentPlace} from '../../redux/reducers/currentPlaceReducer';
 
 const headerLeftIcon = () => (
@@ -51,8 +51,10 @@ const datePlaceFavComps = (
   country,
   isFavourite,
   addToFavPlace,
+  createdAt,
+  landscape,
 ) => (
-  <View style={styles.datePlaceFavContainer}>
+  <View style={[styles.datePlaceFavContainer, landscape ? {flex: 5} : {}]}>
     <DateDisplay options={{}} textStyle={styles.dateText} timeZone={timeZone} />
     <Text style={styles.place}>
       {placeName}, {country}
@@ -68,6 +70,7 @@ const datePlaceFavComps = (
       <Text style={styles.addToFavText}>
         {isFavourite ? 'Favourated' : 'Add to favourite'}
       </Text>
+      {/* <Text>{new Date(createdAt).toLocaleTimeString()}</Text> */}
     </View>
   </View>
 );
@@ -80,6 +83,7 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
   const navigation = useNavigation();
   const currentPlace = useSelector(getCurrentPlace);
   const places = useSelector(getAllPlaces);
+  const {landscape} = useDeviceOrientation();
   const isFavourite = useSelector(state =>
     checkIsFavPlace(
       state,
@@ -121,7 +125,12 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
         }
       };
 
-      if (currentPlace.length !== 1) getData();
+      if (currentPlace.length < 1) getData();
+      else setIsFetching(false);
+
+      return function cleanup() {
+        setIsFetching(true);
+      };
     }, []),
   );
 
@@ -157,7 +166,7 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
       windSpeed: speed,
       name: weather[0].main,
       icon: weather[0].icon,
-      placeName: name,
+      placeName: utils.convertLatinToEng(name),
       country,
       createdAt: new Date(),
       timezone,
@@ -190,7 +199,7 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
       windSpeed: speed,
       name: weather[0].main,
       icon: weather[0].icon,
-      placeName: name,
+      placeName: utils.convertLatinToEng(name),
       country,
       createdAt: new Date(),
       timezone,
@@ -204,45 +213,32 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
 
   const searchForCityWeather = async SEARCH_STRING => {
     try {
-      const placeIndex = places.findIndex(
-        place => place.placeName.toUpperCase() === SEARCH_STRING.toUpperCase(),
-      );
+      const placeIndex = places.findIndex(place => {
+        return (
+          utils.convertLatinToEng(place.placeName).toUpperCase() ===
+          utils.convertLatinToEng(SEARCH_STRING).toUpperCase()
+        );
+      });
+
       if (placeIndex !== -1) {
         //place found
-        if (!utils.isDataExpired(places[placeIndex])) {
+        if (!utils.isDataExpired(places[placeIndex].createdAt)) {
           // data not expired
           setWeatherData(places[placeIndex]);
           return;
         }
-        const weatherData = fetchFromApi(SEARCH_STRING); // if storage data expired then fetch and replace data
+
+        const weatherData = await fetchFromApi(SEARCH_STRING); // if storage data expired then fetch and replace data
         replaceWeatherData(weatherData);
+        return;
       }
+
       const weatherData = await fetchFromApi(SEARCH_STRING); // place not found in storage, fetch and add to storage
       addToStorage(weatherData);
     } catch (e) {
       console.warn(e);
     }
   };
-
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     try {
-  //       if (WEATHER_DATA) {
-  //         setWeatherData(WEATHER_DATA);
-  //         setIsFetching(false);
-  //         return;
-  //       }
-  //       const data = await utils.getCurrentLocData();
-  //       setWeatherData(data);
-  //       setIsFetching(false);
-  //       return;
-  //     } catch (e) {
-  //       console.warn(e.message);
-  //     }
-  //   };
-
-  //   getData();
-  // }, []);
 
   return (
     <ImageBackground style={{height: '100%'}} source={backgroundImage}>
@@ -255,7 +251,11 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
           rightIconOnPress={headerRightIconOnPress}
         />
 
-        <View style={styles.topContainer}>
+        <View
+          style={[
+            styles.topContainer,
+            landscape ? {flexDirection: 'row', alignItems: 'center'} : {},
+          ]}>
           {isFetching ? (
             <LoadingComponent />
           ) : (
@@ -272,6 +272,10 @@ const Home = ({goToSearch, WEATHER_DATA}) => {
                   : weatherData.country,
                 isFavourite,
                 addToFavPlace,
+                currentPlace.length === 1
+                  ? currentPlace[0].createdAt
+                  : weatherData.createdAt,
+                landscape,
               )}
               <TempDetails
                 iconName={

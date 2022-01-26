@@ -15,20 +15,32 @@ const DrawerNavigator = ({navigation}) => {
     navigation.navigate(NAVIGATION_ROUTES.SEARCH);
   };
 
+  const goBack = () => {
+    navigation.navigate(NAVIGATION_ROUTES.HOME);
+  };
+
+  // const goToSearch = () => {
+  //   navigation.navigate(NAVIGATION_ROUTES.SEARCH);
+  // };
+
   return (
     <Drawer.Navigator
       screenOptions={screenOptions}
-      initialRouteName={NAVIGATION_ROUTES.HOME}>
+      initialRouteName={NAVIGATION_ROUTES.FAVOURITE}>
       <Drawer.Screen
         name={NAVIGATION_ROUTES.HOME}
         children={() => <Home goToSearch={goToSearch} />}
       />
       <Drawer.Screen
         name={NAVIGATION_ROUTES.RECENT_SEARCH}
-        component={RecentSearch}
+        children={() => (
+          <RecentSearch goToSearch={goToSearch} goBack={goBack} />
+        )}
       />
-      {/* <Drawer.Screen name={NAVIGATION_ROUTES.SEARCH} component={Search} /> */}
-      <Drawer.Screen name={NAVIGATION_ROUTES.FAVOURITE} component={Favourite} />
+      <Drawer.Screen
+        name={NAVIGATION_ROUTES.FAVOURITE}
+        children={() => <Favourite goToSearch={goToSearch} goBack={goBack} />}
+      />
     </Drawer.Navigator>
   );
 };

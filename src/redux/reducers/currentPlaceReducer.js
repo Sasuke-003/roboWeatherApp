@@ -12,6 +12,9 @@ const slice = createSlice({
       state.pop();
       state.unshift(action.payload);
     },
+    deleteCurrentPlace: (state, action) => {
+      if (state.length === 1) state.pop();
+    },
   },
 });
 
@@ -19,6 +22,6 @@ export default slice.reducer;
 
 // Actions
 
-export const {setCurrentPlace} = slice.actions;
+export const {setCurrentPlace, deleteCurrentPlace} = slice.actions;
 
 export const getCurrentPlace = state => state.currentPlaceReducer;

@@ -1,12 +1,15 @@
-import {getWeatherIconLink} from './weatherIcon';
+import {getWeatherIconLink, fetchValidWeatherData} from './weather';
 import {kelvinToCelsius, kelvinToFahrenheit} from './tempConverter';
-import {getCurrentLocData, isDataExpired} from './asyncStorage';
+import {isDataExpired} from './date';
 import {getCurrentLatLon} from './Location';
+import {convertLatinToEng} from './string';
+
 export const utils = {
   getWeatherIconLink,
   kelvinToCelsius,
   kelvinToFahrenheit,
-  getCurrentLocData,
   isDataExpired,
   getCurrentLatLon,
+  convertLatinToEng,
+  fetchValidWeatherData,
 };
